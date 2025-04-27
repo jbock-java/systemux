@@ -1,0 +1,69 @@
+#!/bin/bash
+
+DEPENDENCIES=(
+  coreutils
+  tmux
+  vim-minimal
+)
+
+#copy-to-rootfs
+cpfs() {
+  local target=rootfs/${2#/}
+  [[ ! -a $1 ]] && {
+    echo "source does not exist: $1"
+    exit 1
+  }
+  [[ -f $target ]] && {
+    echo "target exists but is not a directory: $2"
+    exit 1
+  }
+  [[ ! -a $target ]] && {
+    mkdir -p $target
+  }
+  cp $1 $target
+}
+
+prepare_rootfs() {
+  local S
+  for S in ${CREATE[@]}; do
+    mkdir -p rootfs/${S#/}
+  done
+  cpfs systemux-tmux@.service /etc/systemd/system
+  cpfs systemux.service /etc/systemd/system
+  cpfs systemux.target /etc/systemd/system
+  cpfs hello /bin
+  cpfs tmux.conf /usr/share/systemux
+  cpfs systemux-generator /usr/lib/systemd/system-generators
+  cpfs 10-kernel-quiet.conf /etc/sysctl.d
+  systemctl --root rootfs set-default systemux.target
+}
+
+check_root() {
+  [[ $EUID -ne 0 ]] && {
+    echo "run as root user"
+    exit 1
+  }
+}
+
+main_method() {
+  check_root
+  local OPTIND OPTARG OPTION
+  local full=false
+  while getopts "f" OPTION; do
+    case "${OPTION}" in
+    f)
+      full=true
+      ;;
+    esac
+  done
+  if $full || [[ ! -a rootfs ]]; then
+    rm -rf rootfs
+    mkdir -p rootfs
+    dnf -y --use-host-config --installroot $(realpath rootfs) install ${DEPENDENCIES[@]}
+  fi
+  prepare_rootfs
+  rm -f systemux.img
+  mksquashfs rootfs systemux.img
+}
+
+return 2> /dev/null || main_method $@

@@ -1,0 +1,12 @@
+#!/bin/bash
+
+main_method() {
+  echo "Hello, World!"
+  sleep 5
+  echo
+  echo "This tmux window will now suspend."
+  echo "Press C-b, then n to switch to an active window."
+  sleep inf
+}
+
+return 2> /dev/null || main_method @

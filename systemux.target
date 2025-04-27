@@ -1,0 +1,7 @@
+[Unit]
+Description=systemux target
+Requires=basic.target
+After=basic.target
+Wants=NetworkManager.service
+Wants=plymouth-quit.service plymouth-quit-wait.service
+Wants=systemux.service

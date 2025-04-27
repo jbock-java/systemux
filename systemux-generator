@@ -1,0 +1,7 @@
+#!/bin/bash
+
+target_dir="$1/systemux.target.wants"
+mkdir -p "$target_dir"
+
+tty=$(< /sys/class/tty/console/active)
+ln -s "/usr/lib/systemd/system/systemux@.service" "$target_dir/systemux@${tty##* }.service"
