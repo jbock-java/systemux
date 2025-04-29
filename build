@@ -2,6 +2,7 @@
 
 DEPENDENCIES=(
   coreutils
+  systemd
   tmux
   vim-minimal
 )
@@ -24,10 +25,6 @@ cpfs() {
 }
 
 prepare_rootfs() {
-  local S
-  for S in ${CREATE[@]}; do
-    mkdir -p rootfs/${S#/}
-  done
   cpfs systemux-tmux@.service /etc/systemd/system
   cpfs systemux.service /etc/systemd/system
   cpfs systemux.target /etc/systemd/system
