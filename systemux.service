@@ -1,6 +1,7 @@
 [Unit]
 Description=systemux
 After=systemux.target
+OnFailure=rescue.target
 
 [Service]
 Type=forking

@@ -21,7 +21,7 @@ cpfs() {
   [[ ! -a $target ]] && {
     mkdir -p $target
   }
-  cp $1 $target
+  cp $1 $target/${3:-$1}
 }
 
 prepare_rootfs() {
@@ -32,6 +32,7 @@ prepare_rootfs() {
   cpfs tmux.conf /usr/share/systemux
   cpfs systemux-generator /usr/lib/systemd/system-generators
   cpfs 10-kernel-quiet.conf /etc/sysctl.d
+  cpfs rescue_passwordless.conf /etc/systemd/system/rescue.service.d override.conf
   systemctl --root rootfs set-default systemux.target
 }
 
@@ -46,21 +47,27 @@ main_method() {
   check_root
   local OPTIND OPTARG OPTION
   local full=false
-  while getopts "f" OPTION; do
+  local img=false
+  while getopts "fi" OPTION; do
     case "${OPTION}" in
     f)
       full=true
       ;;
+    i)
+      img=true
+      ;;
     esac
   done
-  if $full || [[ ! -a rootfs ]]; then
+  $full || [[ ! -a rootfs ]] && {
     rm -rf rootfs
     mkdir -p rootfs
     dnf -y --use-host-config --installroot $(realpath rootfs) install ${DEPENDENCIES[@]}
-  fi
+  }
   prepare_rootfs
-  rm -f systemux.img
-  mksquashfs rootfs systemux.img
+  $img || [[ ! -a systemux.img ]] && {
+    rm -f systemux.img
+    mksquashfs rootfs systemux.img
+  }
 }
 
 return 2> /dev/null || main_method $@

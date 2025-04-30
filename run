@@ -1,0 +1,14 @@
+#!/bin/bash
+
+[[ $EUID -ne 0 ]] && {
+  echo "[ERROR] run as root user"
+  return 1
+}
+
+! rpm --quiet -q systemd-container && {
+  echo "[ERROR] install systemd-container"
+  exit 1
+}
+
+#Press Ctrl-] three times within 1s to kill container.
+exec systemd-nspawn --console interactive -b -D rootfs

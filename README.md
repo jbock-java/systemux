@@ -13,7 +13,7 @@ sudo dracut -f --no-hostonly --add 'livenet' live.initrd
 ### Create the squashfs
 
 ```sh
-sudo ./build -f
+sudo ./build -f -i
 ```
 
 ### Running in qemu
