@@ -61,7 +61,15 @@ main_method() {
   $full || [[ ! -a rootfs ]] && {
     rm -rf rootfs
     mkdir -p rootfs
+    local S
+    for S in proc sys; do
+      mkdir -p rootfs/$S
+      mount --bind /$S rootfs/$S
+    done
     dnf -y --use-host-config --installroot $(realpath rootfs) install ${DEPENDENCIES[@]}
+    for S in proc sys; do
+      umount rootfs/$S
+    done
   }
   prepare_rootfs
   $img || [[ ! -a systemux.img ]] && {
