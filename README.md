@@ -7,7 +7,7 @@ The resulting file `systemux.img` can be used as a dracut "stage2" which prints 
 
 ```sh
 sudo dnf install dracut-live
-sudo dracut -f --no-hostonly --add 'livenet' live.initrd
+sudo dracut -f --no-hostonly --add 'livenet' live.img
 ```
 
 ### Create the squashfs
@@ -16,19 +16,20 @@ sudo dracut -f --no-hostonly --add 'livenet' live.initrd
 sudo ./build -f -i
 ```
 
-### Running in qemu
+### Testing in qemu
 
-First create the ipxe binary.
-
-```sh
-make bin-x86_64-efi/ipxe.efi
-```
-
-Then run qemu.
+In another terminal, start an http server (in the directory that contains `systemux.img`):
 
 ```sh
-sudo qemu-system-x86_64 \
-  -drive if=pflash,format=raw,readonly=on,file=/usr/share/edk2/ovmf/OVMF_CODE.fd \
-  -drive file=fat:rw:/boot/efi,format=raw \
-  -nographic
+python3 -mhttp.server --bind $(hostname -I) 3000
 ```
+
+Then start qemu:
+
+```sh
+sudo ./run -q
+```
+
+### Network boot
+
+TODO explain ipxe setup

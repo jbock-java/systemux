@@ -1,4 +1,4 @@
 *.swp
 /rootfs
 /systemux.img
-/live.initrd
+/live.img
