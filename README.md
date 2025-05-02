@@ -1,16 +1,16 @@
 # systemux
 
 This can be used as a starting point to create a bootable liveimage with dracut.
-The resulting file `systemux.img` can be used as a dracut "stage2" which prints "Hello, World!" in a tmux window.
+The systemux img can be used as a dracut "stage2" which prints "Hello, World!" in a tmux window.
 
-### Preparation: create the initrd
+### create live img
 
 ```sh
 sudo dnf install dracut-live
-sudo dracut -f --no-hostonly --add 'livenet' live.img
+sudo dracut -f --no-hostonly --add 'livenet' live-$(uname -r).img
 ```
 
-### Create the squashfs
+### Create systemux img
 
 ```sh
 sudo ./build -f -i
@@ -18,16 +18,16 @@ sudo ./build -f -i
 
 ### Testing in qemu
 
-In another terminal, start an http server (in the directory that contains `systemux.img`):
+In another terminal, start an http server (still in the same directory):
 
 ```sh
-python3 -mhttp.server --bind $(hostname -I) 3000
+python3 -mhttp.server --bind $(hostname -I | sed -E 's/^(\S+).*/\1/') 3000
 ```
 
 Then start qemu:
 
 ```sh
-sudo ./run -q
+sudo ./run
 ```
 
 ### Network boot

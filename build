@@ -73,9 +73,9 @@ main_method() {
     done
   }
   prepare_rootfs
-  $img || [[ ! -a systemux.img ]] && {
-    rm -f systemux.img
-    mksquashfs rootfs systemux.img
+  $img || [[ ! -a systemux-$(uname -r).img ]] && {
+    rm -f systemux-$(uname -r).img
+    mksquashfs rootfs systemux-$(uname -r).img
   }
 }
 
