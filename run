@@ -5,41 +5,22 @@
   return 1
 }
 
-! rpm --quiet -q systemd-container && {
-  echo "[ERROR] install systemd-container"
-  exit 1
-}
-
-use_qemu=false
-
-while getopts "q" OPTION; do
-  case "${OPTION}" in
-  q)
-    use_qemu=true
-    ;;
-  esac
-done
-
-$use_qemu && [[ ! -a live.img ]] && {
+[[ ! -a live.img ]] && {
   echo "[ERROR] live.img not found, see README"
   exit 1
 }
 
-if $use_qemu; then
-  curl --silent -m2 -I --noproxy '*' http://$(hostname -I | xargs):3000/systemux.img || {
-    echo "[ERROR] start http server first, see README"
-    exit 1
-  }
-  #Press Ctrl-a, then x to kill container.
-  exec qemu-system-x86_64 \
-    -kernel /boot/vmlinuz-$(uname -r) \
-    -initrd live.img \
-    -append "panic=60 console=ttyS0 root=live:http://$(hostname -I | xargs):3000/systemux.img" \
-    -netdev user,id=net0 \
-    -device rtl8139,netdev=net0 \
-    -m size=2048 \
-    -nographic
-else
-  #Press Ctrl-] three times within 1s to kill container.
-  exec systemd-nspawn --console interactive -b -D rootfs
-fi
+curl --silent --fail -m2 -I --noproxy '*' http://$(hostname -I | xargs):3000/systemux.img || {
+  echo "[ERROR] start http server first, see README"
+  exit 1
+}
+
+#Press Ctrl-a, then x to kill container.
+exec qemu-system-x86_64 \
+  -kernel /boot/vmlinuz-$(uname -r) \
+  -initrd live.img \
+  -append "panic=60 console=ttyS0 root=live:http://$(hostname -I | xargs):3000/systemux.img" \
+  -netdev user,id=net0 \
+  -device rtl8139,netdev=net0 \
+  -m size=2048 \
+  -nographic

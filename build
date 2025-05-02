@@ -10,6 +10,7 @@ DEPENDENCIES=(
 #copy-to-rootfs
 cpfs() {
   local target=rootfs/${2#/}
+  local filename=$(basename $1)
   [[ ! -a $1 ]] && {
     echo "source does not exist: $1"
     exit 1
@@ -21,7 +22,7 @@ cpfs() {
   [[ ! -a $target ]] && {
     mkdir -p $target
   }
-  cp $1 $target/${3:-$1}
+  cp $1 $target/${3:-$filename}
 }
 
 prepare_rootfs() {
